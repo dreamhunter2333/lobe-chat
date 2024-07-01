@@ -1,6 +1,6 @@
 {
   "name": "@lobehub/chat",
-  "version": "1.1.6",
+  "version": "1.1.16",
   "description": "Lobe Chat - an open-source, high-performance chatbot framework that supports speech synthesis, multimodal, and extensible Function Call plugin system. Supports one-click free deployment of your private ChatGPT/LLM web application.",
   "keywords": [
     "framework",
@@ -98,6 +98,7 @@
     "@aws-sdk/client-bedrock-runtime": "^3.600.0",
     "@aws-sdk/client-s3": "^3.600.0",
     "@aws-sdk/s3-request-presigner": "^3.600.0",
+    "@azure/core-rest-pipeline": "1.16.0",
     "@azure/openai": "1.0.0-beta.12",
     "@cfworker/json-schema": "^1.12.8",
     "@clerk/localizations": "2.0.0",
@@ -122,7 +123,7 @@
     "@vercel/analytics": "^1.3.1",
     "@vercel/speed-insights": "^1.0.12",
     "ahooks": "^3.8.0",
-    "ai": "3.0.19",
+    "ai": "^3.2.6",
     "antd": "^5.18.3",
     "antd-style": "^3.6.2",
     "brotli-wasm": "^3.0.1",
