@@ -1,18 +1,20 @@
-import { Icon } from '@lobehub/ui';
-import { LobeChat } from '@lobehub/ui/brand';
-import { Loader2 } from 'lucide-react';
-import { memo } from 'react';
+import React, { memo } from 'react';
 import { Center, Flexbox } from 'react-layout-kit';
 
-const FullscreenLoading = memo<{ title?: string }>(({ title }) => {
+import { ProductLogo } from '@/components/Branding';
+import InitProgress, { StageItem } from '@/components/InitProgress';
+
+interface FullscreenLoadingProps {
+  activeStage: number;
+  stages: StageItem[];
+}
+
+const FullscreenLoading = memo<FullscreenLoadingProps>(({ activeStage, stages }) => {
   return (
-    <Flexbox height={'100%'} style={{ userSelect: 'none' }} width={'100%'}>
-      <Center flex={1} gap={12} width={'100%'}>
-        <LobeChat size={48} type={'combine'} />
-        <Center gap={16} horizontal>
-          <Icon icon={Loader2} spin />
-          {title}
-        </Center>
+    <Flexbox height={'100%'} style={{ position: 'relative', userSelect: 'none' }} width={'100%'}>
+      <Center flex={1} gap={16} width={'100%'}>
+        <ProductLogo size={48} type={'combine'} />
+        <InitProgress activeStage={activeStage} stages={stages} />
       </Center>
     </Flexbox>
   );

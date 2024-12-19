@@ -1,8 +1,10 @@
 import { z } from 'zod';
 
+import { updateMessagePluginSchema } from '@/database/schemas';
+import { serverDB } from '@/database/server';
 import { MessageModel } from '@/database/server/models/message';
-import { updateMessagePluginSchema } from '@/database/server/schemas/lobechat';
 import { authedProcedure, publicProcedure, router } from '@/libs/trpc';
+import { getFullFileUrl } from '@/server/utils/files';
 import { ChatMessage } from '@/types/message';
 import { BatchTaskResult } from '@/types/service';
 
@@ -12,7 +14,7 @@ const messageProcedure = authedProcedure.use(async (opts) => {
   const { ctx } = opts;
 
   return opts.next({
-    ctx: { messageModel: new MessageModel(ctx.userId) },
+    ctx: { messageModel: new MessageModel(serverDB, ctx.userId) },
   });
 });
 
@@ -54,6 +56,7 @@ export const messageRouter = router({
       return ctx.messageModel.queryBySessionId(input.sessionId);
     }),
 
+  // TODO: 未来这部分方法也需要使用 authedProcedure
   getMessages: publicProcedure
     .input(
       z.object({
@@ -66,9 +69,9 @@ export const messageRouter = router({
     .query(async ({ input, ctx }) => {
       if (!ctx.userId) return [];
 
-      const messageModel = new MessageModel(ctx.userId);
+      const messageModel = new MessageModel(serverDB, ctx.userId);
 
-      return messageModel.query(input);
+      return messageModel.query(input, { postProcessUrl: (path) => getFullFileUrl(path) });
     }),
 
   removeAllMessages: messageProcedure.mutation(async ({ ctx }) => {
@@ -79,6 +82,12 @@ export const messageRouter = router({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       return ctx.messageModel.deleteMessage(input.id);
+    }),
+
+  removeMessageQuery: messageProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return ctx.messageModel.deleteMessageQuery(input.id);
     }),
 
   removeMessages: messageProcedure
@@ -144,7 +153,7 @@ export const messageRouter = router({
         value: z
           .object({
             contentMd5: z.string().optional(),
-            fileId: z.string().optional(),
+            file: z.string().optional(),
             voice: z.string().optional(),
           })
           .or(z.literal(false)),
