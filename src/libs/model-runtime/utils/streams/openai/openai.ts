@@ -3,9 +3,9 @@ import type { Stream } from 'openai/streaming';
 
 import { ChatMessageError, CitationItem } from '@/types/message';
 
-import { AgentRuntimeErrorType, ILobeAgentRuntimeErrorType } from '../../error';
-import { ChatStreamCallbacks } from '../../types';
-import { convertUsage } from '../usageConverter';
+import { AgentRuntimeErrorType, ILobeAgentRuntimeErrorType } from '../../../error';
+import { ChatStreamCallbacks } from '../../../types';
+import { convertUsage } from '../../usageConverter';
 import {
   FIRST_CHUNK_ERROR_KEY,
   StreamContext,
@@ -18,9 +18,9 @@ import {
   createSSEProtocolTransformer,
   createTokenSpeedCalculator,
   generateToolCallId,
-} from './protocol';
+} from '../protocol';
 
-export const transformOpenAIStream = (
+const transformOpenAIStream = (
   chunk: OpenAI.ChatCompletionChunk,
   streamContext: StreamContext,
 ): StreamProtocolChunk | StreamProtocolChunk[] => {
@@ -227,10 +227,12 @@ export const transformOpenAIStream = (
             return [
               {
                 data: {
-                  citations: (citations as any[]).map((item) => ({
-                    title: typeof item === 'string' ? item : item.title,
-                    url: typeof item === 'string' ? item : item.url || item.link,
-                  })).filter(c => c.title && c.url), // Zhipu 内建搜索工具有时会返回空 link 引发程序崩溃
+                  citations: (citations as any[])
+                    .map((item) => ({
+                      title: typeof item === 'string' ? item : item.title,
+                      url: typeof item === 'string' ? item : item.url || item.link,
+                    }))
+                    .filter((c) => c.title && c.url), // Zhipu 内建搜索工具有时会返回空 link 引发程序崩溃
                 },
                 id: chunk.id,
                 type: 'grounding',
