@@ -129,6 +129,7 @@
     "waitingForMore": "Daha fazla model eklenmesi planlanıyor"
   },
   "plugin": {
+    "addMCPPlugin": "MCP Eklentisi Ekle",
     "addTooltip": "Eklenti Ekle",
     "clearDeprecated": "Kullanım Dışı Eklentileri Kaldır",
     "empty": "Henüz eklenti yok, <1>Eklenti Mağazası</1>'nı keşfetmekten çekinmeyin",
@@ -519,6 +520,7 @@
     "hotkey": "Kısayollar",
     "llm": "Modeller",
     "provider": "Yapay Zeka Hizmet Sağlayıcısı",
+    "proxy": "Ağ Proxy",
     "storage": "Veri Depolama",
     "sync": "Bulut Senkronizasyonu",
     "system-agent": "Sistem Asistanı",

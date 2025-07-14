@@ -129,6 +129,7 @@
     "waitingForMore": "Mais modelos estão sendo <1>planejados para serem adicionados</1>, aguarde ansiosamente"
   },
   "plugin": {
+    "addMCPPlugin": "Adicionar plugin MCP",
     "addTooltip": "Adicionar plug-in personalizado",
     "clearDeprecated": "Remover plug-ins inválidos",
     "empty": "Nenhum plug-in instalado no momento, visite a <1>loja de plug-ins</1> para explorar",
@@ -519,6 +520,7 @@
     "hotkey": "Atalhos",
     "llm": "Modelo de Linguagem",
     "provider": "Fornecedor de IA",
+    "proxy": "Proxy de Rede",
     "storage": "Armazenamento de Dados",
     "sync": "Sincronização na nuvem",
     "system-agent": "Assistente do Sistema",

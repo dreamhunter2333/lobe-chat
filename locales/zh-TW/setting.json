@@ -129,6 +129,7 @@
     "waitingForMore": "更多模型正在 <1>計劃接入</1> 中，敬請期待"
   },
   "plugin": {
+    "addMCPPlugin": "新增 MCP 外掛",
     "addTooltip": "新增自訂外掛程式",
     "clearDeprecated": "清除已棄用的外掛",
     "empty": "目前沒有安裝任何外掛，歡迎前往 <1>外掛商店</1> 探索",
@@ -519,6 +520,7 @@
     "hotkey": "快速鍵",
     "llm": "語言模型",
     "provider": "AI 服務商",
+    "proxy": "網路代理",
     "storage": "資料儲存",
     "sync": "雲端同步",
     "system-agent": "系統助手",

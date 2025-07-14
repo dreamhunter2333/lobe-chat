@@ -129,6 +129,7 @@
     "waitingForMore": "Có thêm mô hình đang <1>được lên kế hoạch tích hợp</1>, hãy chờ đợi"
   },
   "plugin": {
+    "addMCPPlugin": "Thêm plugin MCP",
     "addTooltip": "Thêm tiện ích",
     "clearDeprecated": "Xóa tiện ích không còn hỗ trợ",
     "empty": "Hiện chưa có tiện ích nào được cài đặt, hãy truy cập <1>cửa hàng tiện ích</1> để khám phá",
@@ -519,6 +520,7 @@
     "hotkey": "Phím tắt",
     "llm": "Mô hình ngôn ngữ",
     "provider": "Nhà cung cấp AI",
+    "proxy": "Mạng proxy",
     "storage": "Lưu trữ dữ liệu",
     "sync": "Đồng bộ trên đám mây",
     "system-agent": "Trợ lý hệ thống",
