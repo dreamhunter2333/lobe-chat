@@ -1,16 +1,15 @@
-import { CategoryItem, CategoryListQuery } from '@lobehub/market-sdk';
+import { type CategoryItem, type CategoryListQuery } from '@lobehub/market-sdk';
 import { type SWRResponse } from 'swr';
 import type { StateCreator } from 'zustand/vanilla';
 
 import { useClientDataSWR } from '@/libs/swr';
 import { discoverService } from '@/services/discover';
-import { DiscoverStore } from '@/store/discover';
+import { type DiscoverStore } from '@/store/discover';
 import { globalHelpers } from '@/store/global/helpers';
 import {
-  DiscoverMcpDetail,
-  IdentifiersResponse,
-  McpListResponse,
-  McpQueryParams,
+  type DiscoverMcpDetail,
+  type McpListResponse,
+  type McpQueryParams,
 } from '@/types/discover';
 
 export interface MCPAction {
@@ -20,7 +19,6 @@ export interface MCPAction {
   }) => SWRResponse<DiscoverMcpDetail>;
   useFetchMcpList: (params: McpQueryParams) => SWRResponse<McpListResponse>;
   useMcpCategories: (params: CategoryListQuery) => SWRResponse<CategoryItem[]>;
-  useMcpIdentifiers: () => SWRResponse<IdentifiersResponse>;
 }
 
 export const createMCPSlice: StateCreator<
@@ -38,7 +36,7 @@ export const createMCPSlice: StateCreator<
     );
   },
 
-  useFetchMcpList: (params: any) => {
+  useFetchMcpList: (params) => {
     const locale = globalHelpers.getCurrentLanguage();
     return useClientDataSWR(
       ['mcp-list', locale, ...Object.values(params)].filter(Boolean).join('-'),
@@ -60,11 +58,5 @@ export const createMCPSlice: StateCreator<
         revalidateOnFocus: false,
       },
     );
-  },
-
-  useMcpIdentifiers: () => {
-    return useClientDataSWR('mcp-identifiers', async () => discoverService.getMcpIdentifiers(), {
-      revalidateOnFocus: false,
-    });
   },
 });

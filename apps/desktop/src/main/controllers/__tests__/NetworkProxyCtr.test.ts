@@ -5,6 +5,10 @@ import type { App } from '@/core/App';
 
 import NetworkProxyCtr from '../NetworkProxyCtr';
 
+const { ipcMainHandleMock } = vi.hoisted(() => ({
+  ipcMainHandleMock: vi.fn(),
+}));
+
 // 模拟 logger
 vi.mock('@/utils/logger', () => ({
   createLogger: () => ({
@@ -15,11 +19,12 @@ vi.mock('@/utils/logger', () => ({
   }),
 }));
 
-// 模拟 undici
+// 模拟 undici - 使用 vi.fn() 直接在 Mock 中创建
 vi.mock('undici', () => ({
   fetch: vi.fn(),
   getGlobalDispatcher: vi.fn(),
   setGlobalDispatcher: vi.fn(),
+  Agent: vi.fn(),
   ProxyAgent: vi.fn(),
 }));
 
@@ -35,9 +40,6 @@ vi.mock('@/const/store', () => ({
   },
 }));
 
-// 模拟 fetch
-global.fetch = vi.fn();
-
 // 模拟 App 及其依赖项
 const mockStoreManager = {
   get: vi.fn(),
@@ -51,12 +53,32 @@ const mockApp = {
 describe('NetworkProxyCtr', () => {
   let networkProxyCtr: NetworkProxyCtr;
 
-  beforeEach(() => {
+  // 动态导入 undici 的 Mock
+  let mockUndici: any;
+
+  beforeEach(async () => {
     vi.clearAllMocks();
+    ipcMainHandleMock.mockClear();
+
+    // 动态导入 undici Mock
+    mockUndici = await import('undici');
+
     networkProxyCtr = new NetworkProxyCtr(mockApp);
 
-    // 重置全局 fetch mock
-    (global.fetch as any).mockReset();
+    // 设置 undici mocks 的默认返回值
+    vi.mocked(mockUndici.Agent).mockReturnValue({});
+    vi.mocked(mockUndici.ProxyAgent).mockReturnValue({});
+    vi.mocked(mockUndici.getGlobalDispatcher).mockReturnValue({
+      destroy: vi.fn().mockResolvedValue(undefined),
+    });
+    vi.mocked(mockUndici.setGlobalDispatcher).mockReturnValue(undefined);
+
+    // 设置 fetch mock 的默认返回值
+    vi.mocked(mockUndici.fetch).mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+    });
   });
 
   describe('ProxyConfigValidator', () => {
@@ -213,12 +235,12 @@ describe('NetworkProxyCtr', () => {
         statusText: 'OK',
       };
 
-      (global.fetch as any).mockResolvedValueOnce(mockResponse);
+      vi.mocked(mockUndici.fetch).mockResolvedValueOnce(mockResponse);
 
       const result = await networkProxyCtr.testProxyConnection('https://www.google.com');
 
       expect(result).toEqual({ success: true });
-      expect(global.fetch).toHaveBeenCalledWith('https://www.google.com', expect.any(Object));
+      expect(mockUndici.fetch).toHaveBeenCalledWith('https://www.google.com', expect.any(Object));
     });
 
     it('should throw error for failed connection', async () => {
@@ -228,13 +250,13 @@ describe('NetworkProxyCtr', () => {
         statusText: 'Not Found',
       };
 
-      (global.fetch as any).mockResolvedValueOnce(mockResponse);
+      vi.mocked(mockUndici.fetch).mockResolvedValueOnce(mockResponse);
 
       await expect(networkProxyCtr.testProxyConnection('https://www.google.com')).rejects.toThrow();
     });
 
     it('should throw error for network error', async () => {
-      (global.fetch as any).mockRejectedValueOnce(new Error('Network error'));
+      vi.mocked(mockUndici.fetch).mockRejectedValueOnce(new Error('Network error'));
 
       await expect(networkProxyCtr.testProxyConnection('https://www.google.com')).rejects.toThrow();
     });
@@ -257,7 +279,7 @@ describe('NetworkProxyCtr', () => {
         statusText: 'OK',
       };
 
-      (global.fetch as any).mockResolvedValueOnce(mockResponse);
+      vi.mocked(mockUndici.fetch).mockResolvedValueOnce(mockResponse);
 
       const result = await networkProxyCtr.testProxyConfig({ config: validConfig });
 
@@ -289,7 +311,7 @@ describe('NetworkProxyCtr', () => {
         statusText: 'OK',
       };
 
-      (global.fetch as any).mockResolvedValueOnce(mockResponse);
+      vi.mocked(mockUndici.fetch).mockResolvedValueOnce(mockResponse);
 
       const result = await networkProxyCtr.testProxyConfig({ config: disabledConfig });
 
@@ -297,7 +319,7 @@ describe('NetworkProxyCtr', () => {
     });
 
     it('should return failure for connection error', async () => {
-      (global.fetch as any).mockRejectedValueOnce(new Error('Connection failed'));
+      vi.mocked(mockUndici.fetch).mockRejectedValueOnce(new Error('Connection failed'));
 
       const result = await networkProxyCtr.testProxyConfig({ config: validConfig });
 
@@ -306,7 +328,7 @@ describe('NetworkProxyCtr', () => {
     });
   });
 
-  describe('afterAppReady', () => {
+  describe('beforeAppReady', () => {
     it('should apply stored proxy settings on app ready', async () => {
       const storedConfig: NetworkProxySettings = {
         enableProxy: true,
@@ -319,7 +341,7 @@ describe('NetworkProxyCtr', () => {
 
       mockStoreManager.get.mockReturnValue(storedConfig);
 
-      await networkProxyCtr.afterAppReady();
+      await networkProxyCtr.beforeAppReady();
 
       expect(mockStoreManager.get).toHaveBeenCalledWith('networkProxy', expect.any(Object));
     });
@@ -336,7 +358,7 @@ describe('NetworkProxyCtr', () => {
 
       mockStoreManager.get.mockReturnValue(invalidConfig);
 
-      await networkProxyCtr.afterAppReady();
+      await networkProxyCtr.beforeAppReady();
 
       expect(mockStoreManager.get).toHaveBeenCalledWith('networkProxy', expect.any(Object));
     });
@@ -347,7 +369,9 @@ describe('NetworkProxyCtr', () => {
       });
 
       // 不应该抛出错误
-      await expect(networkProxyCtr.afterAppReady()).resolves.not.toThrow();
+      await expect(networkProxyCtr.beforeAppReady()).resolves.not.toThrow();
+
+      mockStoreManager.get.mockReset();
     });
   });
 
@@ -399,3 +423,8 @@ describe('NetworkProxyCtr', () => {
     });
   });
 });
+vi.mock('electron', () => ({
+  ipcMain: {
+    handle: ipcMainHandleMock,
+  },
+}));
